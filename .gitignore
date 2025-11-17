@@ -208,3 +208,7 @@ __marimo__/
 
 # environment folder
 m/
+model.h5
+onehot_encoder_gro.pkl
+scalar.pkl
+label_encoder_gender.pkl
