@@ -6,7 +6,7 @@ import pandas as pd
 import pickle
 
 # load the trained model
-model = tf.keras.model.load_model('model.h5')
+model = tf.keras.models.load_model('model.h5')
 
 # Load the encoders and scaler
 with open('label_encoder_gender.pkl','rb') as file:
@@ -33,7 +33,7 @@ estimated_salary = st.number_input('Estimated Salary')
 tenure = st.slider('Tenure',0,10)
 num_of_products = st.slider('Number of Products', 1, 4)
 has_cr_card = st.selectbox('Has Credit Card', [0, 1])
-is_active_member = st.slectbox('Is Active Member', [ 0, 1])
+is_active_member = st.selectbox('Is Active Member', [ 0, 1])
 
 
 input_data = pd.DataFrame({
@@ -50,3 +50,20 @@ input_data = pd.DataFrame({
 
 geo_encoded = onehot_encoder_gro.transform([[geography]]).toarray()
 geo_encoded_df = pd.DataFrame(geo_encoded, columns=onehot_encoder_gro.get_feature_names_out(['Geography']))
+
+#combine onehot-encoded columns with input data
+input_data = pd.concat([input_data.reset_index(drop=True),geo_encoded_df],axis=1)
+
+# input_df = pd.concat([input_df.drop('Geography',axis=1),geo_encoded_df],axis=1)
+
+#scale the input data
+input_data_scaled = scaler.transform(input_data)
+
+prediction = model.predict(input_data_scaled)
+prediction_proba = prediction[0][0]
+
+st.write(f'Churn Probability: {prediction_proba:.2f}')
+if prediction_proba > 0.5:
+    st.write('The customer is likely to churn.')
+else:
+    st.write("The customer is not likely to churn.")
